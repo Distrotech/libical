@@ -3,7 +3,7 @@
     FILE: icaldirset.c
     CREATOR: eric 28 November 1999
   
-    $Id: icaldirset.c,v 1.1.1.1 2001-01-02 07:33:03 ebusboom Exp $
+    $Id: icaldirset.c,v 1.3 2001-01-03 06:35:15 ebusboom Exp $
     $Locker:  $
     
  (C) COPYRIGHT 2000, Eric Busboom, http://www.softwarestudio.org
@@ -712,10 +712,14 @@ icalcomponent* icaldirset_get_next_component(icaldirset* store)
 	    
 	    /* If there is a gauge defined and the component does not
 	       pass the gauge, skip the rest of the loop */
+
+#if 0 /* HACK */
 	    if (impl->gauge != 0 && icalgauge_test(c,impl->gauge) == 0){
 		continue;
 	    }
-
+#else
+	    assert(0); /* icalgauge_test needs to be fixed */
+#endif
 	    /* Either there is no gauge, or the component passed the
 	       gauge, so return it*/
 

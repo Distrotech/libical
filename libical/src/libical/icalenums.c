@@ -3,7 +3,7 @@
   FILE: icalenum.c
   CREATOR: eric 29 April 1999
   
-  $Id: icalenums.c,v 1.1.1.1 2001-01-02 07:32:59 ebusboom Exp $
+  $Id: icalenums.c,v 1.4 2001-01-26 21:28:54 ebusboom Exp $
 
 
  (C) COPYRIGHT 2000, Eric Busboom, http://www.softwarestudio.org
@@ -42,6 +42,7 @@ struct icalproperty_kind_map {
 
 static struct icalproperty_kind_map property_map[] = 
 {
+    { ICAL_ANY_PROPERTY, "ANY"},
     { ICAL_ACTION_PROPERTY, "ACTION"},
     { ICAL_ATTACH_PROPERTY, "ATTACH"},
     { ICAL_ATTENDEE_PROPERTY, "ATTENDEE"},
@@ -251,9 +252,10 @@ static struct icalvalue_kind_map value_map[] =
     { ICAL_METHOD_VALUE, "METHOD"}, /* Not an RFC2445 type */
     { ICAL_STATUS_VALUE, "STATUS"}, /* Not an RFC2445 type */
     { ICAL_GEO_VALUE, "FLOAT"}, /* Not an RFC2445 type */
-    { ICAL_ATTACH_VALUE, "XATTACH"}, /* Not an RFC2445 type */
-    { ICAL_DATETIMEDATE_VALUE, "XDATETIMEDATE"}, /* Not an RFC2445 type */
-    { ICAL_DATETIMEPERIOD_VALUE, "XDATETIMEPERIOD"}, /* Not an RFC2445 type */
+    { ICAL_ATTACH_VALUE, "ATTACH"}, /* Not an RFC2445 type */
+    { ICAL_DATETIMEDATE_VALUE, "DATETIMEDATE"}, /* Not an RFC2445 type */
+    { ICAL_DATETIMEPERIOD_VALUE, "DATETIMEPERIOD"}, /* Not an RFC2445 type */
+    { ICAL_TRIGGER_VALUE, "TRIGGER"}, /* Not an RFC2445 type */
     { ICAL_QUERY_VALUE, "QUERY"},
     { ICAL_NO_VALUE, ""},
 };

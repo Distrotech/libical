@@ -3,7 +3,7 @@
   FILE: icalrecur.c
   CREATOR: eric 16 May 2000
   
-  $Id: icalrecur.c,v 1.1.1.1 2001-01-02 07:33:02 ebusboom Exp $
+  $Id: icalrecur.c,v 1.4 2001-01-24 17:14:01 ebusboom Exp $
   $Locker:  $
     
 
@@ -139,7 +139,7 @@
 
 #include <stdlib.h> /* for malloc */
 #include <errno.h> /* for errno */
-#include <string.h> /* for strdup and index */
+#include <string.h> /* for strdup and strchr*/
 #include <assert.h>
 #include <stddef.h> /* For offsetof() macro */
 
@@ -162,7 +162,7 @@ const char* icalrecur_first_clause(struct icalrecur_parser *parser)
     char *idx;
     parser->this_clause = parser->copy;
     
-    idx = index(parser->this_clause,';');
+    idx = strchr(parser->this_clause,';');
 
     if (idx == 0){
 	parser->next_clause = 0;
@@ -187,7 +187,7 @@ const char* icalrecur_next_clause(struct icalrecur_parser *parser)
 	return 0;
     }
 
-    idx = index(parser->this_clause,';');
+    idx = strchr(parser->this_clause,';');
 
     if (idx == 0){
 	parser->next_clause = 0;
@@ -209,7 +209,7 @@ void icalrecur_clause_name_and_value(struct icalrecur_parser *parser,
 
     *name = parser->this_clause;
 
-    idx = index(parser->this_clause,'=');
+    idx = strchr(parser->this_clause,'=');
 
     if (idx == 0){
 	*name = 0;
@@ -240,7 +240,7 @@ void icalrecur_add_byrules(struct icalrecur_parser *parser, short *array,
 	
 	t = n;
 
-	n = index(t,',');
+	n = strchr(t,',');
 
 	if(n != 0){
 	    *n = 0;
@@ -286,7 +286,7 @@ void icalrecur_add_bydayrules(struct icalrecur_parser *parser, const char* vals)
 
 	t = n;
 
-	n = index(t,',');
+	n = strchr(t,',');
 
 	if(n != 0){
 	    *n = 0;
@@ -300,8 +300,11 @@ void icalrecur_add_bydayrules(struct icalrecur_parser *parser, const char* vals)
 	} else if (*t == '+'){
 	    sign = 1;
 	    t++;
+	} else {
+	    sign = 1;
 	}
 
+	weekno = 0;
 	/* Get Optional weekno */
 	if( sscanf(t,"%d",&weekno) != 0){
 	    if (n != 0){
@@ -315,7 +318,7 @@ void icalrecur_add_bydayrules(struct icalrecur_parser *parser, const char* vals)
 
 	wd = icalrecur_string_to_weekday(t);
 
-	array[i++] = wd + sign*8*weekno;
+	array[i++] = sign* ((int)wd + 8*weekno);
 	array[i] =  ICAL_RECURRENCE_ARRAY_MAX;
 
     }
@@ -327,13 +330,13 @@ struct icalrecurrencetype icalrecurrencetype_from_string(const char* str)
 {
     struct icalrecur_parser parser;
 
-    icalerror_check_arg_re(str!=0,"str",parser.rt);
-
-    /* Set up the parser struct */
-
     memset(&parser,0,sizeof(parser));
     icalrecurrencetype_clear(&parser.rt);
 
+    icalerror_check_arg_re(str!=0,"str",parser.rt);
+
+
+    /* Set up the parser struct */
     parser.rule = str;
     parser.copy = strdup(parser.rule);
     parser.this_clause = parser.copy;
@@ -350,6 +353,12 @@ struct icalrecurrencetype icalrecurrencetype_from_string(const char* str)
     {
 	char *name, *value;
 	icalrecur_clause_name_and_value(&parser,&name,&value);
+
+	if(name == 0){
+	    icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
+	    icalrecurrencetype_clear(&parser.rt);
+	    return parser.rt;
+	}
 
 	if (strcmp(name,"FREQ") == 0){
 	    parser.rt.freq = icalrecur_string_to_recurrence(value);
@@ -388,7 +397,9 @@ struct icalrecurrencetype icalrecurrencetype_from_string(const char* str)
 	    icalrecur_add_byrules(&parser,parser.rt.by_set_pos,
 				  ICAL_BY_SETPOS_SIZE,value);
 	} else {
-	    /* error */
+	    icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
+	    icalrecurrencetype_clear(&parser.rt);
+	    return parser.rt;
 	}
 	
     }
@@ -1695,7 +1706,6 @@ int check_restriction(struct icalrecur_iterator_impl* impl,
 
 int check_contracting_rules(struct icalrecur_iterator_impl* impl)
 {
-    enum byrule;
 
     int day_of_week=0;
     int week_no=0;
@@ -1824,7 +1834,11 @@ enum icalrecurrencetype_weekday icalrecurrencetype_day_day_of_week(short day)
 
 short icalrecurrencetype_day_position(short day)
 {
-    short pos = (day-icalrecurrencetype_day_day_of_week(day))/8;
+    short wd, pos;
+
+    wd = icalrecurrencetype_day_day_of_week(day);
+
+    pos = (abs(day)-wd)/8 * ((day<0)?-1:1);
 
     if(pos == 0){
 	pos = 1;

@@ -4,7 +4,7 @@
  CREATOR: eric 02 June 2000
 
 
- $Id: icaltime.h,v 1.1.1.1 2001-01-02 07:33:02 ebusboom Exp $
+ $Id: icaltime.h,v 1.5 2001-01-26 21:28:54 ebusboom Exp $
  $Locker:  $
 
  (C) COPYRIGHT 2000, Eric Busboom, http://www.softwarestudio.org
@@ -57,6 +57,7 @@ struct icaltimetype
 /* Convert seconds past UNIX epoch to a timetype*/
 struct icaltimetype icaltime_from_timet(time_t v, int is_date);
 time_t icaltime_as_timet(struct icaltimetype);
+char* icaltime_as_ical_string(struct icaltimetype tt);
 
 /* Like icaltime_from_timet(), except that the input may be in seconds
    past the epoch in floating time */
@@ -70,9 +71,6 @@ struct icaltimetype icaltime_from_string(const char* str);
 /* Return the offset of the named zone as seconds. tt is a time
    indicating the date for which you want the offset */
 int icaltime_utc_offset(struct icaltimetype tt, const char* tzid);
-int icaltime_local_utc_offset();
-int icaltime_daylight_offset(struct icaltimetype tt, const char* tzid);
-int icaltime_local_daylight_offset();
 
 /* convert tt, of timezone tzid, into a utc time. Does nothing if the
    time is already UTC.  */
@@ -83,15 +81,11 @@ struct icaltimetype icaltime_as_utc(struct icaltimetype tt,
 struct icaltimetype icaltime_as_zone(struct icaltimetype tt,
 				     const char* tzid);
 
-/* convert tt, a time in UTC, into a local time. This does nothing is
-   the time is not UTC*/
-struct icaltimetype icaltime_as_local(struct icaltimetype tt);
-
-
 
 struct icaltimetype icaltime_null_time(void);
 
 int icaltime_is_null_time(struct icaltimetype t);
+int icaltime_is_valid_time(struct icaltimetype t);
 
 struct icaltimetype icaltime_normalize(struct icaltimetype t);
 
@@ -125,10 +119,12 @@ struct icaldurationtype
 	unsigned int seconds;
 };
 
-struct icaldurationtype icaldurationtype_from_timet(time_t t);
+struct icaldurationtype icaldurationtype_from_int(int t);
 struct icaldurationtype icaldurationtype_from_string(const char*);
-time_t icaldurationtype_as_timet(struct icaldurationtype duration);
-
+int icaldurationtype_as_int(struct icaldurationtype duration);
+char* icaldurationtype_as_ical_string(struct icaldurationtype d);
+struct icaldurationtype icaldurationtype_null_duration();
+int icaldurationtype_is_null_duration(struct icaldurationtype d);
 
 struct icalperiodtype 
 {
@@ -136,6 +132,12 @@ struct icalperiodtype
 	struct icaltimetype end; /* Must be absolute */
 	struct icaldurationtype duration;
 };
+
+struct icalperiodtype icalperiodtype_from_string (const char* str);
+const char* icalperiodtype_as_ical_string(struct icalperiodtype p);
+struct icalperiodtype icalperiodtype_null_period();
+int icalperiodtype_is_null_period(struct icalperiodtype p);
+int icalperiodtype_is_valid_period(struct icalperiodtype p);
 
 time_t icalperiodtype_duration(struct icalperiodtype period);
 time_t icalperiodtype_end(struct icalperiodtype period);

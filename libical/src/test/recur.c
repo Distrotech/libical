@@ -46,6 +46,10 @@ int main(int argc, char *argv[])
     time_t tt;
     char* file; 
 
+    icalerror_set_error_state(ICAL_MALFORMEDDATA_ERROR, ICAL_ERROR_NONFATAL);
+    icalerror_set_error_state(ICAL_PARSE_ERROR, ICAL_ERROR_NONFATAL);
+
+
     if (argc <= 1){
 	file = "../../test-data/recur.txt";
     } else if (argc == 2){
@@ -66,7 +70,6 @@ int main(int argc, char *argv[])
     for (itr = icalfileset_get_first_component(cin);
          itr != 0;
          itr = icalfileset_get_next_component(cin)){
-	int error = 0;
 
 	desc = icalcomponent_get_first_property(itr,ICAL_DESCRIPTION_PROPERTY);
 	dtstart = icalcomponent_get_first_property(itr,ICAL_DTSTART_PROPERTY);
