@@ -3,7 +3,7 @@
   FILE: icaltime.c
   CREATOR: eric 02 June 2000
   
-  $Id: icaltime.c,v 1.1.1.1 2001-01-02 07:33:02 ebusboom Exp $
+  $Id: icaltime.c,v 1.3 2001-01-12 21:22:20 ebusboom Exp $
   $Locker:  $
     
  (C) COPYRIGHT 2000, Eric Busboom, http://www.softwarestudio.org
@@ -41,8 +41,10 @@
 #define  icalerror_check_arg_re(x,y,z)
 #else
 #include "icalerror.h"
+#include "icalmemory.h"
 #endif
 
+extern long int timezone;  /* Global defined by libc */
 struct icaltimetype 
 icaltime_from_timet(time_t tm, int is_date)
 {
@@ -542,9 +544,9 @@ icalperiodtype_end (struct icalperiodtype period);
 
 
 /* From Russel Steinthal */
-time_t icaldurationtype_as_timet(struct icaldurationtype dur)
+int icaldurationtype_as_int(struct icaldurationtype dur)
 {
-        return (time_t) (dur.seconds +
+        return (int) (dur.seconds +
                          (60 * dur.minutes) +
                          (60 * 60 * dur.hours) +
                          (60 * 60 * 24 * dur.days) +
@@ -552,10 +554,10 @@ time_t icaldurationtype_as_timet(struct icaldurationtype dur)
 } 
 
 /* From Seth Alves,  <alves@hungry.com>   */
-struct icaldurationtype icaldurationtype_from_timet(time_t t)
+struct icaldurationtype icaldurationtype_from_int(int t)
 {
         struct icaldurationtype dur;
-        time_t used = 0;
+        int used = 0;
  
         dur.weeks = (t - used) / (60 * 60 * 24 * 7);
         used += dur.weeks * (60 * 60 * 24 * 7);
@@ -587,12 +589,78 @@ struct icaldurationtype icaldurationtype_from_string(const char* str)
  
 }
 
+#define TMP_BUF_SIZE 1024
+void append_duration_segment(char** buf, char** buf_ptr, size_t* buf_size, 
+			     char* sep, unsigned int value) {
+
+    char temp[TMP_BUF_SIZE];
+
+    sprintf(temp,"%d",value);
+
+    icalmemory_append_string(buf, buf_ptr, buf_size, temp);
+    icalmemory_append_string(buf, buf_ptr, buf_size, sep);
+    
+}
+
+char* icaldurationtype_as_ical_string(struct icaldurationtype d) 
+{
+
+    char *buf, *output_line;
+    size_t buf_size = 256;
+    char* buf_ptr = 0;
+    int seconds;
+
+    buf = (char*)icalmemory_new_buffer(buf_size);
+    buf_ptr = buf;
+    
+
+    seconds = icaldurationtype_as_int(d);
+
+    if(seconds !=0){
+	icalmemory_append_string(&buf, &buf_ptr, &buf_size, "P");
+    
+	if (d.weeks != 0 ) {
+	    append_duration_segment(&buf, &buf_ptr, &buf_size, "W", d.weeks);
+	}
+	
+	if (d.days != 0 ) {
+	    append_duration_segment(&buf, &buf_ptr, &buf_size, "D", d.days);
+	}
+	
+	if (d.hours != 0 || d.minutes != 0 || d.seconds != 0) {
+	    
+	    icalmemory_append_string(&buf, &buf_ptr, &buf_size, "T");
+	    
+	    if (d.hours != 0 ) {
+		append_duration_segment(&buf, &buf_ptr, &buf_size, "H", d.hours);
+	    }
+	    if (d.minutes != 0 ) {
+		append_duration_segment(&buf, &buf_ptr, &buf_size, "M", 
+					d.minutes);
+	    }
+	    if (d.seconds != 0 ) {
+		append_duration_segment(&buf, &buf_ptr, &buf_size, "S", 
+					d.seconds);
+	    }
+	    
+	}
+    } else {
+	icalmemory_append_string(&buf, &buf_ptr, &buf_size, "PTS0");
+    }
+ 
+    output_line = icalmemory_tmp_copy(buf);
+    icalmemory_free_buffer(buf);
+
+    return output_line;
+    
+}
+
 #endif
 
 struct icaltimetype  icaltime_add(struct icaltimetype t,
 				  struct icaldurationtype  d)
 {
-    time_t dt = icaldurationtype_as_timet(d);
+    int dt = icaldurationtype_as_int(d);
 
     t.second += dt;
 
@@ -608,7 +676,7 @@ struct icaldurationtype  icaltime_subtract(struct icaltimetype t1,
     time_t t1t = icaltime_as_timet(t1);
     time_t t2t = icaltime_as_timet(t2);
 
-    return icaldurationtype_from_timet(t1t-t2t);
+    return icaldurationtype_from_int(t1t-t2t);
 
 
 }

@@ -5,7 +5,7 @@
   
   DESCRIPTION:
   
-  $Id: regression.c,v 1.1.1.1 2001-01-02 07:33:06 ebusboom Exp $
+  $Id: regression.c,v 1.5 2001-01-16 06:55:09 ebusboom Exp $
   $Locker:  $
 
   (C) COPYRIGHT 1999 Eric Busboom 
@@ -35,6 +35,10 @@
 #include <stdlib.h> /* for malloc */
 #include <stdio.h> /* for printf */
 #include <time.h> /* for time() */
+#include <unistd.h> /* for unlink, fork */
+#include <sys/wait.h> /* For waitpid */
+#include <sys/types.h> /* For wait pid */
+#include <sys/time.h> /* for select */
 
 
 /* This example creates and minipulates the ical object that appears
@@ -946,7 +950,6 @@ int test_store()
 int test_compare()
 {
     icalvalue *v1, *v2;
-    icalcomponent *c, *gauge;
 
     v1 = icalvalue_new_caladdress("cap://value/1");
     v2 = icalvalue_new_clone(v1);
@@ -977,30 +980,6 @@ int test_compare()
     v2 = icalvalue_new_integer(5);
 
     printf("%d\n",icalvalue_compare(v1,v2));
-
-
-    gauge = 
-	icalcomponent_vanew(
-	    ICAL_VCALENDAR_COMPONENT,
-	    icalcomponent_vanew(
-		ICAL_VEVENT_COMPONENT,  
-		icalproperty_vanew_comment(
-		    "Comment",
-		    icalparameter_new_xliccomparetype(ICAL_XLICCOMPARETYPE_EQUAL),
-		    0),
-		0),
-	    0);
-
-    c =	icalcomponent_vanew(
-		ICAL_VEVENT_COMPONENT,  
-		icalproperty_vanew_comment(
-		    "Comment",
-		    0),
-		0);
-
-    printf("%s",icalcomponent_as_ical_string(gauge));
-		
-    printf("%d\n",icalgauge_test(c,gauge));
 
     return 0;
 }
@@ -2053,7 +2032,7 @@ void test_convenience(){
     printf("** 1 DTSTART and DTEND **\n%s\n\n",
 	   icalcomponent_as_ical_string(c));
 
-    duration = icaldurationtype_as_timet(icalcomponent_get_duration(c))/60;
+    duration = icaldurationtype_as_int(icalcomponent_get_duration(c))/60;
 
     printf("Start: %s\n",ictt_as_string(icalcomponent_get_dtstart(c)));
     printf("End:   %s\n",ictt_as_string(icalcomponent_get_dtend(c)));
@@ -2074,7 +2053,7 @@ void test_convenience(){
     printf("\n** 2 DTSTART and DURATION **\n%s\n\n",
 	   icalcomponent_as_ical_string(c));
 
-    duration = icaldurationtype_as_timet(icalcomponent_get_duration(c))/60;
+    duration = icaldurationtype_as_int(icalcomponent_get_duration(c))/60;
 
     printf("Start: %s\n",ictt_as_string(icalcomponent_get_dtstart(c)));
     printf("End:   %s\n",ictt_as_string(icalcomponent_get_dtend(c)));
@@ -2097,7 +2076,7 @@ void test_convenience(){
     printf("** 3 DTSTART and DTEND, Set DURATION **\n%s\n\n",
 	   icalcomponent_as_ical_string(c));
 
-    duration = icaldurationtype_as_timet(icalcomponent_get_duration(c))/60;
+    duration = icaldurationtype_as_int(icalcomponent_get_duration(c))/60;
 
     printf("Start: %s\n",ictt_as_string(icalcomponent_get_dtstart(c)));
     printf("End:   %s\n",ictt_as_string(icalcomponent_get_dtend(c)));
@@ -2120,7 +2099,7 @@ void test_convenience(){
     printf("\n** 4 DTSTART and DURATION, set DTEND **\n%s\n\n",
 	   icalcomponent_as_ical_string(c));
 
-    duration = icaldurationtype_as_timet(icalcomponent_get_duration(c))/60;
+    duration = icaldurationtype_as_int(icalcomponent_get_duration(c))/60;
 
     printf("Start: %s\n",ictt_as_string(icalcomponent_get_dtstart(c)));
     printf("End:   %s\n",ictt_as_string(icalcomponent_get_dtend(c)));
@@ -2143,7 +2122,7 @@ void test_convenience(){
 	   icalcomponent_as_ical_string(c));
 
 
-    duration = icaldurationtype_as_timet(icalcomponent_get_duration(c))/60;
+    duration = icaldurationtype_as_int(icalcomponent_get_duration(c))/60;
 
     printf("Start: %s\n",ictt_as_string(icalcomponent_get_dtstart(c)));
     printf("End:   %s\n",ictt_as_string(icalcomponent_get_dtend(c)));
@@ -2167,7 +2146,7 @@ void test_convenience(){
 	   icalcomponent_as_ical_string(c));
 
 
-    duration = icaldurationtype_as_timet(icalcomponent_get_duration(c))/60;
+    duration = icaldurationtype_as_int(icalcomponent_get_duration(c))/60;
 
     printf("Start: %s\n",ictt_as_string(icalcomponent_get_dtstart(c)));
     printf("End:   %s\n",ictt_as_string(icalcomponent_get_dtend(c)));
@@ -2298,26 +2277,449 @@ void test_x(){
 
 }
 
-void test_gauge() {
+void test_gauge_sql() {
 
 
-    struct icalgauge_impl
-    {
-	    icalcomponent* select;
-	    icalcomponent* from;
-	    icalcomponent* where;
+    icalgauge *g;
+    
+    printf("\nSELECT DTSTART,DTEND,COMMENT FROM VEVENT,VTODO WHERE VEVENT.SUMMARY = 'Bongoa' AND SEQUENCE < 5\n");
+
+    g = icalgauge_new_from_sql("SELECT DTSTART,DTEND,COMMENT FROM VEVENT,VTODO WHERE VEVENT.SUMMARY = 'Bongoa' AND SEQUENCE < 5");
+    
+    icalgauge_dump(g);
+
+    icalgauge_free(g);
+
+    printf("\nSELECT * FROM VEVENT,VTODO WHERE VEVENT.SUMMARY = 'Bongoa' AND SEQUENCE < 5 OR METHOD != 'CREATE'\n");
+
+    g = icalgauge_new_from_sql("SELECT * FROM VEVENT,VTODO WHERE VEVENT.SUMMARY = 'Bongoa' AND SEQUENCE < 5 OR METHOD != 'CREATE'");
+    
+    icalgauge_dump(g);
+
+    icalgauge_free(g);
+
+}
+
+void test_gauge_compare() {
+
+    icalgauge *g;
+    icalcomponent *c;
+
+    /* Equality */
+
+    c =  icalcomponent_vanew(ICAL_VCALENDAR_COMPONENT,
+	      icalcomponent_vanew(ICAL_VEVENT_COMPONENT,
+		  icalproperty_new_dtstart(
+		      icaltime_from_string("20000101T000002")),0),0);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART = '20000101T000002'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART = '20000101T000002'\n");
+    assert(c!=0);
+    assert(g!=0);
+
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART = '20000101T000001'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART = '20000101T000001'\n");
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 0);
+
+    icalgauge_free(g);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART != '20000101T000003'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART != '20000101T000003'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+
+    /* Less than */
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART < '20000101T000003'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART < '20000101T000003'\n");
+
+    assert(icalgauge_compare(g,c) == 1);
+
+    assert(g!=0);
+    icalgauge_free(g);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART < '20000101T000002'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART < '20000101T000002'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 0);
+
+    icalgauge_free(g);
+
+    /* Greater than */
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART > '20000101T000001'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART > '20000101T000001'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART > '20000101T000002'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART > '20000101T000002'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 0);
+
+    icalgauge_free(g);
+
+
+    /* Greater than or Equal to */
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART >= '20000101T000002'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART >= '20000101T000002'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART >= '20000101T000003'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART >= '20000101T000003'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 0);
+
+    icalgauge_free(g);
+
+    /* Less than or Equal to */
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART <= '20000101T000002'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART <= '20000101T000002'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART <= '20000101T000001'");
+
+    printf("SELECT * FROM VEVENT WHERE DTSTART <= '20000101T000001'\n");
+
+
+    assert(g!=0);
+    assert(icalgauge_compare(g,c) == 0);
+
+    icalgauge_free(g);
+
+    icalcomponent_free(c);
+
+
+    /* Complex comparisions */
+
+    c =  icalcomponent_vanew(
+	ICAL_VCALENDAR_COMPONENT,
+	icalproperty_new_method(ICAL_METHOD_REQUEST),
+	icalcomponent_vanew(
+	    ICAL_VEVENT_COMPONENT,
+	    icalproperty_new_dtstart(
+		icaltime_from_string("20000101T000002")),
+	    icalproperty_new_comment("foo"),
+	    icalcomponent_vanew(
+		ICAL_VALARM_COMPONENT,
+		icalproperty_new_dtstart(
+		    icaltime_from_string("20000101T120000")),
+		
+		0),
+	    0),
+	0);
+    
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE VALARM.DTSTART = '20000101T120000'");
+
+    printf("SELECT * FROM VEVENT WHERE VALARM.DTSTART = '20000101T120000'\n");
+
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE COMMENT = 'foo'");
+
+    printf("SELECT * FROM VEVENT WHERE COMMENT = 'foo'\n");
+
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+
+    g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE COMMENT = 'foo' AND  VALARM.DTSTART = '20000101T120000'");
+
+    printf("SELECT * FROM VEVENT WHERE COMMENT = 'foo' AND  VALARM.DTSTART = '20000101T120000'\n");
+
+    assert(icalgauge_compare(g,c) == 1);
+
+    icalgauge_free(g);
+
+    icalcomponent_free(c);
+    
+}
+
+icalcomponent* make_component(int i){
+
+    icalcomponent *c;
+
+    struct icaltimetype t = icaltime_from_string("20000101T120000Z");
+
+    t.day += i;
+
+    icaltime_normalize(t);
+
+    c =  icalcomponent_vanew(
+	ICAL_VCALENDAR_COMPONENT,
+	icalproperty_new_method(ICAL_METHOD_REQUEST),
+	icalcomponent_vanew(
+	    ICAL_VEVENT_COMPONENT,
+	    icalproperty_new_dtstart(t),
+	    0),
+	0);
+
+    assert(c != 0);
+
+    return c;
+
+}
+void test_fileset()
+{
+    icalfileset *fs;
+    icalcomponent *c;
+    int i;
+    char *path = "test_fileset.ics";
+    icalgauge  *g = icalgauge_new_from_sql(
+	"SELECT * FROM VEVENT WHERE DTSTART > '20000103T120000Z' AND DTSTART <= '20000106T120000Z'");
+
+
+    unlink(path);
+
+    fs = icalfileset_new(path);
+    
+    assert(fs != 0);
+
+    for (i = 0; i!= 10; i++){
+	c = make_component(i);
+	icalfileset_add_component(fs,c);
+    }
+
+    icalfileset_commit(fs);
+
+    icalfileset_free(fs);
+    fs = icalfileset_new(path);
+
+
+    printf("== No Selections \n");
+
+    for (c = icalfileset_get_first_component(fs);
+	 c != 0;
+	 c = icalfileset_get_next_component(fs)){
+	struct icaltimetype t = icalcomponent_get_dtstart(c);
+
+	printf("%s\n",icaltime_as_ctime(t));
+    }
+
+    icalfileset_select(fs,g);
+
+    printf("\n== DTSTART > '20000103T120000Z' AND DTSTART <= '20000106T120000Z' \n");
+
+    for (c = icalfileset_get_first_component(fs);
+	 c != 0;
+	 c = icalfileset_get_next_component(fs)){
+	struct icaltimetype t = icalcomponent_get_dtstart(c);
+
+	printf("%s\n",icaltime_as_ctime(t));
+    }
+
+    icalfileset_free(fs);
+    
+}
+
+void microsleep(int us)
+{
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = us;
+
+    select(0,0,0,0,&tv);
+
+}
+
+
+void test_file_locks()
+{
+    pid_t pid;
+    char *path = "test_fileset_locktest.ics";
+    icalfileset *fs;
+    icalcomponent *c, *c2;
+    struct icaldurationtype d;
+    int i;
+    int final,sec;
+
+    icalfileset_safe_saves = 1;
+
+    icalerror_clear_errno();
+
+    unlink(path);
+
+    fs = icalfileset_new(path);
+
+    if(icalfileset_get_first_component(fs)==0){
+	c = make_component(0);
+	
+	d = icaldurationtype_from_int(1);
+	
+	icalcomponent_set_duration(c,d);
+	
+	icalfileset_add_component(fs,c);
+	
+	c2 = icalcomponent_new_clone(c);
+	
+	icalfileset_add_component(fs,c2);
+	
+	icalfileset_commit(fs);
+    }
+    
+    icalfileset_free(fs);
+    
+    assert(icalerrno == ICAL_NO_ERROR);
+    
+    pid = fork();
+    
+    assert(pid >= 0);
+    
+    if(pid == 0){
+	/*child*/
+	int i;
+
+	microsleep(rand()/(RAND_MAX/100));
+
+	for(i = 0; i< 50; i++){
+	    fs = icalfileset_new(path);
+
+
+	    assert(fs != 0);
+
+	    c = icalfileset_get_first_component(fs);
+
+	    assert(c!=0);
+	   
+	    d = icalcomponent_get_duration(c);
+	    d = icaldurationtype_from_int(icaldurationtype_as_int(d)+1);
 	    
-    };
+	    icalcomponent_set_duration(c,d);
+	    icalcomponent_set_summary(c,"Child");	  
+  
+	    c2 = icalcomponent_new_clone(c);
+	    icalcomponent_set_summary(c2,"Child");
+	    icalfileset_add_component(fs,c2);
 
-    struct icalgauge_impl *g;
-    
-    g = icalgauge_new_from_sql("SELECT DTSTART,DTEND FROM VEVENT,VTODO WHERE SUMMARY = 'Bongoa' AND SEQUENCE < 5");
-    
-    printf("Select: %s\n",icalcomponent_as_ical_string(g->select));
-    printf("From: %s\n",icalcomponent_as_ical_string(g->from));
-    printf("Where: %s\n",icalcomponent_as_ical_string(g->where));
-    
+	    icalfileset_mark(fs);
+	    icalfileset_commit(fs);
 
+	    icalfileset_free(fs);
+
+	    microsleep(rand()/(RAND_MAX/20));
+
+
+	}
+
+	exit(0);
+
+    } else {
+	/* parent */
+	int i;
+	
+	for(i = 0; i< 50; i++){
+	    fs = icalfileset_new(path);
+
+	    assert(fs != 0);
+
+	    c = icalfileset_get_first_component(fs);
+	    
+	    assert(c!=0);
+
+	    d = icalcomponent_get_duration(c);
+	    d = icaldurationtype_from_int(icaldurationtype_as_int(d)+1);
+	    
+	    icalcomponent_set_duration(c,d);
+	    icalcomponent_set_summary(c,"Parent");
+
+	    c2 = icalcomponent_new_clone(c);
+	    icalcomponent_set_summary(c2,"Parent");
+	    icalfileset_add_component(fs,c2);
+
+	    icalfileset_mark(fs);
+	    icalfileset_commit(fs);
+	    icalfileset_free(fs);
+
+	}
+    }
+
+    assert(waitpid(pid,0,0)==pid);
+	
+
+    fs = icalfileset_new(path);
+    
+    i=1;
+
+    c = icalfileset_get_first_component(fs);
+    final = icaldurationtype_as_int(icalcomponent_get_duration(c));
+    for (c = icalfileset_get_next_component(fs);
+	 c != 0;
+	 c = icalfileset_get_next_component(fs)){
+	struct icaldurationtype d = icalcomponent_get_duration(c);
+	sec = icaldurationtype_as_int(d);
+
+	/*printf("%d,%d ",i,sec);*/
+	assert(i == sec);
+	i++;
+    }
+
+    printf("\nFinal: %d\n",final);
+
+    
+    assert(sec == final);
 }
 
 
@@ -2328,13 +2730,13 @@ int main(int argc, char *argv[])
     extern int optind, optopt;
     int errflg=0;
     char* program_name = strrchr(argv[0],'/');
-    int ttime=0, trecur=0,tspan=0, tmisc=0, tgauge = 0;
+    int ttime=0, trecur=0,tspan=0, tmisc=0, tgauge = 0, tfile = 0;
 
     if(argc==1) {
-	ttime = trecur = tspan = tmisc = 1;
+	ttime = trecur = tspan = tmisc = tgauge = tfile = 1;
     }
 
-    while ((c = getopt(argc, argv, "t:s:r:m:g")) != -1) {
+    while ((c = getopt(argc, argv, "t:s:r:m:g:f:")) != -1) {
 	switch (c) {
 
 	    case 't': {
@@ -2360,7 +2762,12 @@ int main(int argc, char *argv[])
 	    
 
 	    case 'g': {
-		tgauge = 1;
+		tgauge = atoi(optarg);
+		break;
+	    }
+
+	    case 'f': {
+		tfile = atoi(optarg);
 		break;
 	    }
 	    
@@ -2428,21 +2835,32 @@ int main(int argc, char *argv[])
 	test_span();
     }
 
-    if(tgauge == 1){
-	printf("\n------------Test Gauge----------------\n");
-	test_gauge();
+    if(tgauge == 1 || tgauge == 2){
+	printf("\n------------Test Gauge SQL----------------\n");
+	test_gauge_sql();
     }	
+
+    if(tgauge == 1 || tgauge == 3){
+	printf("\n------------Test Gauge Compare--------------\n");
+	test_gauge_compare();
+    }	
+
+    if(tfile ==1 || tfile == 2){
+	printf("\n------------Test File Set--------------\n");
+	test_fileset();
+    }
+
+    if(tfile ==1 || tfile == 3){
+	printf("\n------------Test File Set--------------\n");
+	test_file_locks();
+    }
+
+
 
     if(tmisc == 1 || tmisc  == 2){
 	printf("\n------------Test X Props and Params--------\n");
 	test_x();
     }
-
-    if(tmisc == 1 || tmisc  == 3){
-	printf("\n------------Test Gauge ---------------------\n");
-	test_gauge();
-    }
-
 
 
     if(tmisc == 1){

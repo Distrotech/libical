@@ -2,7 +2,7 @@
   FILE: icalcomponent.c
   CREATOR: eric 28 April 1999
   
-  $Id: icalcomponent.c,v 1.1.1.1 2001-01-02 07:32:58 ebusboom Exp $
+  $Id: icalcomponent.c,v 1.3 2001-01-12 21:22:20 ebusboom Exp $
 
 
  (C) COPYRIGHT 2000, Eric Busboom, http://www.softwarestudio.org
@@ -837,7 +837,7 @@ struct icaltime_span icalcomponent_get_span(icalcomponent* comp)
 	
 	dur = icalproperty_get_duration(duration);
 
-	durt = icaldurationtype_as_timet(dur);
+	durt = icaldurationtype_as_int(dur);
 	span.end = span.start+durt;
     }
 
@@ -1241,7 +1241,7 @@ void icalcomponent_set_duration(icalcomponent* comp,
 	icalproperty_set_dtend(end_prop,new_end);
 
     } else if ( dur_prop != 0) { 
-	icalproperty_set_duration(end_prop,v);
+	icalproperty_set_duration(dur_prop,v);
     } else {
 	/* Error, both duration and dtend have been specified */
 	icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
@@ -1273,7 +1273,7 @@ struct icaldurationtype icalcomponent_get_duration(icalcomponent* comp)
 	    icalcomponent_get_dtend(inner);
 	time_t endt = icaltime_as_timet(end);
 	
-	return icaldurationtype_from_timet(endt-startt);
+	return icaldurationtype_from_int(endt-startt);
     } else if ( dur_prop != 0) { 
 	return icalproperty_get_duration(dur_prop);
     } else {
@@ -1282,8 +1282,6 @@ struct icaldurationtype icalcomponent_get_duration(icalcomponent* comp)
 	return null_duration;
     }
 }
-
-
 
 void icalcomponent_set_method(icalcomponent* comp, icalproperty_method method)
 {
@@ -1344,8 +1342,34 @@ struct icaltimetype icalcomponent_get_dtstamp(icalcomponent* comp)
 }
 
 
-void icalcomponent_set_summary(icalcomponent* comp, const char* v);
-const char* icalcomponent_get_summary(icalcomponent* comp);
+void icalcomponent_set_summary(icalcomponent* comp, const char* v)
+{
+    icalcomponent *inner = icalcomponent_get_inner(comp); 
+    icalproperty *prop 
+	= icalcomponent_get_first_property(inner, ICAL_SUMMARY_PROPERTY);
+
+    if (prop == 0){
+	prop = icalproperty_new_summary(v);
+	icalcomponent_add_property(inner, prop);
+    }
+    
+    icalproperty_set_summary(prop,v);
+}
+
+
+const char* icalcomponent_get_summary(icalcomponent* comp)
+{
+    icalcomponent *inner = icalcomponent_get_inner(comp); 
+    icalproperty *prop 
+	= icalcomponent_get_first_property(inner,ICAL_SUMMARY_PROPERTY);
+
+    if (prop == 0){
+	return 0;
+    }
+    
+    return icalproperty_get_summary(prop);
+
+}
 
 void icalcomponent_set_comment(icalcomponent* comp, const char* v);
 const char* icalcomponent_get_comment(icalcomponent* comp);

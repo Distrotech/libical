@@ -1,3 +1,27 @@
+2001-01-15  Eric Busboom  <eric@softwarestudio.org>
+
+	* icalfileset.c Many improvements. File locking now works, and so
+ 	does searching with icalfileset_select()
+
+2001-01-08  Eric Busboom  <eric@softwarestudio.org>
+
+	* Makefile.am Remove spaces after -I in several 
+	Makefile.am routines. 
+
+	* icalset.c removed return statements from some void functions.
+
+	* icalparameter.c.in Added break to default: case that had no
+ 	body. Compilers on Solaris and Tru64 UNIX complained.
+
+2001-01-02  Eric Busboom  <eric@softwarestudio.org>
+
+	* icaltime.c Changed icaldurationtype_from_time and _as_timet to
+ 	_from_int and _as_int. This is a change interface that may break
+ 	some code.
+
+	* icalgauge.c icalgaugeimpl.h, icalgauge.h., Rewrote gauge code to
+ 	use pvl-lists directly, instead of trying to reuse icalcomponent.
+
 2000-12-12  Eric Busboom  <eric@softwarestudio.org>
 
 	* icalparser.c Addedd support for x-parameters. 
