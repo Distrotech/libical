@@ -26,5 +26,5 @@
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 #
 CVSROOT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail -u %{sVv} acampi@users.sourceforge.net lindner@inuus.com
-DEFAULT $CVSROOT/CVSROOT/syncmail -u %{sVv} lindner@inuus.com freeassociation-commits@lists.sourceforge.net
+DEFAULT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail -u %{sVv} lindner@inuus.com freeassociation-commits@lists.sourceforge.net
 #
