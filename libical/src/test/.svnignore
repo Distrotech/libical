@@ -1,0 +1,16 @@
+Makefile
+.deps
+.libs
+*.lo
+*.la
+copycluster
+regression
+parser
+storage
+stow
+recur
+testmime
+testvcal
+process
+testclassify
+Makefile.in
