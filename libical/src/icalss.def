@@ -1,4 +1,4 @@
-LIBRARY icalss.dll
+LIBRARY
 EXPORTS
 icalcalendar_create
 icalcalendar_free
