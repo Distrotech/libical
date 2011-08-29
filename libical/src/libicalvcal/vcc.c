@@ -4,6 +4,7 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h> /* for ptrdiff_h */
 
 #define YYBYACC 1
 #define YYMAJOR 1

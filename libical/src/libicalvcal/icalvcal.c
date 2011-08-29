@@ -45,6 +45,7 @@
 
 #include "icalvcal.h"
 #include <string.h>
+#include <stddef.h> /* for ptrdiff_h */
 
 #if defined(_MSC_VER)
 #define snprintf _snprintf
