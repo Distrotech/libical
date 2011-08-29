@@ -150,12 +150,12 @@ endif(USE_BUILTIN_TZDATA)
 ############# install stuff ######################
 
 
-if(NOT WIN32)   # pkgconfig file
-  set(VERSION "${PROJECT_VERSION}")
-  set(prefix "${CMAKE_INSTALL_PREFIX}")
-  set(exec_prefix "\${prefix}")
-  set(libdir "\${exec_prefix}/lib")
-  set(includedir "\${prefix}/include")
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libical.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libical.pc @ONLY)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libical.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
-endif(NOT WIN32)
+set(VERSION "${PROJECT_VERSION}")
+set(prefix "${CMAKE_INSTALL_PREFIX}")
+set(exec_prefix "\${prefix}")
+set(libdir "\${exec_prefix}/lib")
+set(includedir "\${prefix}/include")
+set(PTHREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libical.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libical.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libical.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
