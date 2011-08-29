@@ -50,7 +50,7 @@
 #include <sys/time.h> /* for select */
 #else
 #include <direct.h> /* for mkdir */
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include <sys/types.h> /* For wait pid */
 
