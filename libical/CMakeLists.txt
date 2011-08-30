@@ -138,7 +138,7 @@ set(INSTALL_TARGETS_DEFAULT_ARGS
   ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
 
-################# build targets ########################
+################# build subdirs ########################
 
 add_subdirectory(design-data)
 add_subdirectory(doc)
@@ -151,8 +151,7 @@ if(USE_BUILTIN_TZDATA)
   add_subdirectory(zoneinfo)
 endif(USE_BUILTIN_TZDATA)
 
-############# install stuff ######################
-
+########### create and install pkg-config file #########
 
 set(VERSION "${PROJECT_VERSION}")
 set(prefix "${CMAKE_INSTALL_PREFIX}")
