@@ -20,6 +20,10 @@
 #  Set to build using our own timezone data.
 #  Default=false (use the system timezone data)
 #
+# -DSTATIC_LIBRARY=[true|false]
+#  Set to build static libraries only.
+#  Default=false (build shared and static libs)
+#
 
 project(libical)
 
