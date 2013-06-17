@@ -1,156 +1,157 @@
+/* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Define to 1 if you have the <assert.h> header file. */
-#undef HAVE_ASSERT_H
+#define HAVE_ASSERT_H 1
 
 /* Define to 1 if you have the `backtrace' function. */
-#undef HAVE_BACKTRACE
+/* #undef HAVE_BACKTRACE */
 
 /* Define to 1 if you have the <byteswap.h> header file. */
-#undef HAVE_BYTESWAP_H
+#define HAVE_BYTESWAP_H 1
 
 /* Define to 1 if you have the <ctype.h> header file. */
-#undef HAVE_CTYPE_H
+#define HAVE_CTYPE_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <endian.h> header file. */
-#undef HAVE_ENDIAN_H
+#define HAVE_ENDIAN_H 1
 
 /* Define to 1 if you have the `gmtime_r' function. */
-#undef HAVE_GMTIME_R
+#define HAVE_GMTIME_R 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
+#define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `isspace' function. */
-#undef HAVE_ISSPACE
+#define HAVE_ISSPACE 1
 
 /* Define to 1 if you have the `iswspace' function. */
-#undef HAVE_ISWSPACE
+#define HAVE_ISWSPACE 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
+#define HAVE_MEMORY_H 1
 
 /* Define if we have pthread. */
-#undef HAVE_PTHREAD
+#define HAVE_PTHREAD /**/
 
 /* Define to 1 if you have the <pthread.h> header file. */
-#undef HAVE_PTHREAD_H
+#define HAVE_PTHREAD_H 1
 
 /* Define to 1 if you have the `setenv' function. */
-#undef HAVE_SETENV
+#define HAVE_SETENV 1
 
 /* Define to 1 if you have the `snprintf' function. */
-#undef HAVE_SNPRINTF
+#define HAVE_SNPRINTF 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
+#define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
+#define HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the `strdup' function. */
-#undef HAVE_STRDUP
+#define HAVE_STRDUP 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
+#define HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-#undef HAVE_STRING_H
+#define HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/endian.h> header file. */
-#undef HAVE_SYS_ENDIAN_H
+/* #undef HAVE_SYS_ENDIAN_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#undef HAVE_SYS_STAT_H
+#define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
+#define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <time.h> header file. */
-#undef HAVE_TIME_H
+#define HAVE_TIME_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
+#define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `unsetenv' function. */
-#undef HAVE_UNSETENV
+#define HAVE_UNSETENV 1
 
 /* Define to 1 if you have the <wctype.h> header file. */
-#undef HAVE_WCTYPE_H
+#define HAVE_WCTYPE_H 1
 
 /* Define to prevent empty properties from being replaced with X-LIC-ERROR
    properties */
-#undef ICAL_ALLOW_EMPTY_PROPERTIES
+#define ICAL_ALLOW_EMPTY_PROPERTIES 0
 
 /* Define to make icalerror_* calls abort instead of internally signalling an
    error */
-#undef ICAL_ERRORS_ARE_FATAL
+#define ICAL_ERRORS_ARE_FATAL 0
 
 /* Define if we want _REENTRANT */
-#undef ICAL_REENTRANT
+/* #undef ICAL_REENTRANT */
 
 /* Define to terminate lines with "\n" instead of "\r\n" */
-#undef ICAL_UNIX_NEWLINE
+#define ICAL_UNIX_NEWLINE 1
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
-#undef LT_OBJDIR
+#define LT_OBJDIR ".libs/"
 
 /* Define to 1 if you DO NOT WANT to see deprecated messages */
-#undef NO_WARN_DEPRECATED
+#define NO_WARN_DEPRECATED 1
 
 /* Define to 1 if you DO NO WANT to see the warning messages related to
    ICAL_MALFORMEDDATA_ERROR and parsing .ics zoneinfo files */
-#undef NO_WARN_ICAL_MALFORMEDDATA_ERROR_HACK
+#define NO_WARN_ICAL_MALFORMEDDATA_ERROR_HACK 1
 
 /* Name of package */
-#undef PACKAGE
+#define PACKAGE "libical"
 
 /* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT "http://freeassociation.sf.net/"
 
 /* where our self provided zonefiles should live */
-#undef PACKAGE_DATA_DIR
+#define PACKAGE_DATA_DIR "/usr/local/libical/share/libical"
 
 /* Define to the full name of this package. */
-#undef PACKAGE_NAME
+#define PACKAGE_NAME "libical"
 
 /* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
+#define PACKAGE_STRING "libical 1.00"
 
 /* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
+#define PACKAGE_TARNAME "libical"
 
 /* Define to the home page for this package. */
-#undef PACKAGE_URL
+#define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#undef PACKAGE_VERSION
+#define PACKAGE_VERSION "1.00"
 
 /* Define to 1 if you have the ANSI C header files. */
-#undef STDC_HEADERS
+#define STDC_HEADERS 1
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
-#undef TM_IN_SYS_TIME
+/* #undef TM_IN_SYS_TIME */
 
 /* whether we should bring our own TZ-Data */
-#undef USE_BUILTIN_TZDATA
+/* #undef USE_BUILTIN_TZDATA */
 
 /* Version number of package */
-#undef VERSION
+#define VERSION "1.00"
 
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
-#undef YYTEXT_POINTER
+#define YYTEXT_POINTER 1
 
 /* Define to empty if `const' does not conform to ANSI C. */
-#undef const
+/* #undef const */
 
 /* Define to `int' if <sys/types.h> does not define. */
-#undef mode_t
+/* #undef mode_t */
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef size_t
+/* #undef size_t */
